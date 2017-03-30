@@ -11,23 +11,23 @@ http://crcibernetica.com
 
  License
  **********************************************************************************
- This program is free software; you can redistribute it 
- and/or modify it under the terms of the GNU General    
- Public License as published by the Free Software       
- Foundation; either version 3 of the License, or        
- (at your option) any later version.                    
-                                                        
- This program is distributed in the hope that it will   
- be useful, but WITHOUT ANY WARRANTY; without even the  
- implied warranty of MERCHANTABILITY or FITNESS FOR A   
- PARTICULAR PURPOSE. See the GNU General Public        
- License for more details.                              
-                                                        
- You should have received a copy of the GNU General    
+ This program is free software; you can redistribute it
+ and/or modify it under the terms of the GNU General
+ Public License as published by the Free Software
+ Foundation; either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will
+ be useful, but WITHOUT ANY WARRANTY; without even the
+ implied warranty of MERCHANTABILITY or FITNESS FOR A
+ PARTICULAR PURPOSE. See the GNU General Public
+ License for more details.
+
+ You should have received a copy of the GNU General
  Public License along with this program.
  If not, see <http://www.gnu.org/licenses/>.
-                                                        
- Licence can be viewed at                               
+
+ Licence can be viewed at
  http://www.gnu.org/licenses/gpl-3.0.txt
 
  Please maintain this license information along with authorship
@@ -37,17 +37,9 @@ http://crcibernetica.com
 
 #include "Nextion.h"
 
-#if defined(USE_SOFTWARE_SERIAL)
-Nextion::Nextion(SoftwareSerial &next, uint32_t baud): nextion(&next){
-  nextion->begin(baud);
+Nextion::Nextion(Stream *next): nextion(next){
   flushSerial();
 }
-#else
-Nextion::Nextion(HardwareSerial &next, uint32_t baud): nextion(&next){
-  nextion->begin(baud);
-  flushSerial();
-}
-#endif
 
 void Nextion::buttonToggle(boolean &buttonState, String objName, uint8_t picDefualtId, uint8_t picSelected){
   String tempStr = "";
@@ -66,7 +58,7 @@ void Nextion::buttonToggle(boolean &buttonState, String objName, uint8_t picDefu
   }
 }//end buttonPressed
 
-uint8_t Nextion::buttonOnOff(String find_component, String unknown_component, uint8_t pin, int btn_prev_state){  
+uint8_t Nextion::buttonOnOff(String find_component, String unknown_component, uint8_t pin, int btn_prev_state){
   uint8_t btn_state = btn_prev_state;
   if((unknown_component == find_component) && (!btn_state)){
     btn_state = 1;//Led is ON
@@ -98,7 +90,7 @@ boolean Nextion::ack(void){
     switch (bytes[0]) {
 	case 0x00:
 	  return false; break;
-	  //return "0"; break;      
+	  //return "0"; break;
 	case 0x01:
 	  return true; break;
 	  //return "1"; break;
@@ -112,10 +104,12 @@ boolean Nextion::ack(void){
 	  return "1A"; break;
 	case 0x1B:
 	  return "1B"; break;//*/
-	default: 
+	default:
 	  return false;
     }//end switch
   }//end if
+
+  return false;
 }//end
 
 unsigned int Nextion::getComponentValue(String component){
@@ -155,10 +149,10 @@ boolean Nextion::updateProgressBar(int x, int y, int maxWidth, int maxHeight, in
 	h2 = maxHeight;
 	offset1 = x + value;
 	offset2 = y;
-	
+
 	}else{ // vertical
 	value = map(value, 0, 100, 0, maxHeight);
-	offset2 = y;	
+	offset2 = y;
 	y = y + maxHeight - value;
 	w1 = maxWidth;
 	h1 = value;
@@ -166,7 +160,7 @@ boolean Nextion::updateProgressBar(int x, int y, int maxWidth, int maxHeight, in
 	h2 = maxHeight - value;
 	offset1 = x;
 	}//end if
-	
+
 	String wipe = "picq " + String(x) + "," + String(y) + "," + String(w1) + "," + String(h1) + "," + String(fullPictureID);
 	sendCommand(wipe.c_str());
 	wipe = "picq " + String(offset1) + "," + String(offset2) + "," + String(w2) + "," + String(h2) + "," + String(emptyPictureID);
@@ -253,7 +247,7 @@ String Nextion::listen(unsigned long timeout){//returns generic
 	break;
   case 'h'://0x68
 	cmd = String(cmd[2], DEC) + "," + String(cmd[4], DEC) +","+ String(cmd[5], DEC);
-	cmd = "68 " + cmd;	
+	cmd = "68 " + cmd;
 	return cmd;
 	break;
   case 'p'://0x70
@@ -261,13 +255,13 @@ String Nextion::listen(unsigned long timeout){//returns generic
 	cmd = "70 " + cmd;
 	return cmd;
 	break;
-  default: 
+  default:
 	//	cmd += String(b, HEX);
 	//if(ff == 3){break;}//end if
 	//cmd += " ";//
 	return cmd;//
 	break;
-  }//end switch	
+  }//end switch
   return "";
 }//end listen
 
@@ -308,7 +302,7 @@ uint8_t Nextion::pageId(void){
 	return pagId.toInt();
   }
   return -1;
-  
+
 }//pageId
 
 void Nextion::sendCommand(const char* cmd){
@@ -335,4 +329,4 @@ void Nextion::flushSerial(){
   nextion->flush();
 }//end flush
 
- 
+
